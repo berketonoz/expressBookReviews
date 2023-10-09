@@ -23,8 +23,8 @@ const authenticatedUser = (username, password) => {
     return user.username === username && user.password === password;
   });
 
-  if (validusers.length > 0) return true
-  else return false 
+  if (validusers.length > 0) return true;
+  else return false;
 };
 
 //only registered users can login
@@ -36,7 +36,9 @@ regd_users.post("/login", (req, res) => {
     return res.status(404).json({ message: "Error logging in" });
   }
   if (authenticatedUser(username, password)) {
-    let accessToken = jwt.sign({ data: password }, "access", { expiresIn: 60 });
+    let accessToken = jwt.sign({ data: password }, "fingerprint_customer", {
+      expiresIn: 60 * 60,
+    });
     req.session.authorization = { accessToken, username };
     return res.status(200).send("User successfully logged in");
   } else {
@@ -49,7 +51,26 @@ regd_users.post("/login", (req, res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+  const username = req.session.authorization["username"];
+  let isbn = req.params.isbn;
+  let book = books[isbn];
+  let review = req.body.review;
+  let myReview = book["reviews"].find((r) => r.user === username);
+  if (myReview) {
+    myReview.review = review;
+  } else {
+    books[isbn]["reviews"].push({ user: username, review: review });
+  }
+  return res.status(200).json({message: "Successfully modified your review", reviews: book.reviews });
+});
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const username = req.session.authorization["username"];
+  let isbn = req.params.isbn;
+  let reviews = books[isbn].reviews;
+  books[isbn].reviews =  books[isbn].reviews.filter((r) => r.user !== username);
+  return res.status(200).json({message: "Successfully deleted your review", reviews: reviews })
 });
 
 module.exports.authenticated = regd_users;

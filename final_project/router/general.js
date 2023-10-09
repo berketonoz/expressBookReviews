@@ -23,41 +23,53 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
+public_users.get("/", async (req, res) => {
   //Write your code here
-  res.send(books);
+  let foo = async () => {
+    return books;
+  };
+  return res.status(200).json(await foo());
 });
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
+public_users.get("/isbn/:isbn", async (req, res) => {
   //Write your code here
-  let book = books[req.params.isbn];
-  res.send(book);
+  let foo = async () => {
+    let book = await books[req.params.isbn];
+    return book;
+  };
+  return res.status(200).json(await foo());
 });
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
+public_users.get("/author/:author", async (req, res) => {
   //Write your code here
-  let authors = Object.values(books).filter(
-    (item) => item.author === req.params.author
-  );
-  res.send(authors);
+  let foo = async () => {
+    let author = Object.values(books).filter(
+      (item) => item.author === req.params.author
+    );
+    return author;
+  };
+  return res.status(200).json(await foo());
 });
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
+public_users.get("/title/:title", async (req, res) => {
   //Write your code here
-  let titles = Object.values(books).filter(
-    (item) => item.title === req.params.title
-  );
-  res.send(titles);
+  let foo = async () => {
+    let titles = Object.values(books).filter(
+      (item) => item.title === req.params.title
+    );
+    return titles;
+  };
+  return res.status(200).json(await foo());
 });
 
 //  Get book review
-public_users.get("/review/:isbn", function (req, res) {
+public_users.get("/review/:isbn", (req, res) => {
   //Write your code here
   let reviews = books[req.params.isbn]["reviews"];
-  res.send(reviews);
+  return res.status(200).json(reviews);
 });
 
 module.exports.general = public_users;
